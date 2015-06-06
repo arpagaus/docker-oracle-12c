@@ -7,9 +7,9 @@ while true; do
   pmon=`ps -ef | egrep pmon_$ORACLE_SID'\>' | grep -v grep`
   if [ "$status" == "" ] || [ "$pmon" == "" ]
   then
-    su -s /bin/bash oracle -c "lsnrctl start"
-    su -s /bin/bash oracle -c "sqlplus /nolog @?/config/scripts/startdb.sql"
-    su -s /bin/bash oracle -c "lsnrctl status"
+    sudo -u oracle -i bash -c "lsnrctl start"
+    sudo -u oracle -i bash -c "sqlplus /nolog @?/config/scripts/startdb.sql"
+    sudo -u oracle -i bash -c "lsnrctl status"
   fi
   sleep 1m
 done;
