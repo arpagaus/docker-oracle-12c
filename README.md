@@ -8,29 +8,32 @@ $ docker run -dP arpagaus/oracle-12c
 ```
 
 ## Image
-Due to legal restrictions I cannot publish this image on the Docker Hub but you may build it yourself. 
-
-### Prerequisites
-Due to Docker limitations this image cannot be built using the stock binary provided on docker.com. By default the amount of available memory on /dev/shm is limited to 64MB (see docker/docker#2606). This is not sufficient to meet Oracle's MEMORY_TARGET minimum requirements.
-If you are not comfortable building & using a modified docker version let me assure you that the steps are well documented on https://docs.docker.com/project/set-up-dev-env/ and work smoothly because the build is actually executed within a docker container.
-If you're still not convinced the you can still use the original https://github.com/wscherphof/oracle-12c instead.
-
-You'll find my modified Docker v1.5.0 source which increases /dev/shm to 2GB here https://github.com/arpagaus/docker
+Due to legal restrictions this image is not available on the Docker Hub. However, with some time and patience you may build it yourself. 
 
 ### Build
-First download `linuxamd64_12102_database_1of2.zip` & `linuxamd64_12102_database_2of2.zip` from [Oracle Tech Net](http://www.oracle.com/technetwork/database/enterprise-edition/downloads/database12c-linux-download-2240591.html) and put them in the root folder. Afterwards simply run:
+Be sure you've read the [prerequisites](#prerequisites), then download the following zip files from [Oracle Tech Net](http://www.oracle.com/technetwork/database/enterprise-edition/downloads/database12c-linux-download-2240591.html) and put them in the build's root folder:
+ * `linuxamd64_12102_database_1of2.zip`
+ * `linuxamd64_12102_database_2of2.zip` 
 
+Finally, simply run:
 ```
 $ docker build -t arpagaus/oracle-12c .
 ```
+
+### Prerequisites
+Due to Docker limitations this image cannot be built using the stock binary. Within containers the amount of available memory on */dev/shm* is limited to 64MB (see [#2606](https://github.com/docker/docker/issues/2606)). This is not sufficient to meet Oracle's *MEMORY_TARGET* minimum requirements.
+If you are not comfortable building and using a modified docker binary let me assure you that the steps are well [documented](https://docs.docker.com/project/set-up-dev-env/) and straight-forward.
+If you're still not convinced I'd recommend https://github.com/wscherphof/oracle-12c instead which relies on some manual steps and the use of *--privileged* as a workaround.
+
+You may refer to https://github.com/arpagaus/docker for a modified Docker v1.5.0 repository which increases /dev/shm to 2GB
 
 ## Acknowledgement
 This image is largely based on the work of [Wouter Scherphof](https://github.com/wscherphof)
 
 ## Known issues
 ### Updating Oracle Linux
-Whiles installing packages on the Oracle Linux container using yum an error might occur. As I workaround I've published an updated version of the Oracle Linux 7.1 image arpagaus/oraclelinux.
+When installing packages on the Oracle Linux container using *yum* an error might occur. As a workaround I've published an updated version of the Oracle Linux 7.1 image arpagaus/oraclelinux.
 
 ## License
-[GNU Lesser General Public License (LGPL)](http://www.gnu.org/licenses/lgpl-3.0.txt) for the contents of this GitHub repo; for Oracle's database software, see their [Licensing Information](http://docs.oracle.com/database/121/DBLIC/toc.htm)
+[GNU General Public License (GPL)](https://www.gnu.org/licenses/gpl-2.0.txt) for the contents of this GitHub repo; for Oracle's database software, see their [Licensing Information](http://docs.oracle.com/database/121/DBLIC/toc.htm)
 

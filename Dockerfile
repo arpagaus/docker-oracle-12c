@@ -1,8 +1,14 @@
-FROM arpagaus/oraclelinux
+# Based on oraclelinux:7.1 use arpagaus/oraclelinux alternatively
+FROM oraclelinux:7.1
 
-RUN yum -y install oracle-rdbms-server-12cR1-preinstall unzip sudo
+# Install prerequisites
+RUN yum -y install oracle-rdbms-server-12cR1-preinstall unzip sudo && \
+  yum clean all
 
+ENV ORACLE_SID ORCL
 ENV ORACLE_BASE /u01/app/oracle
+ENV ORACLE_HOME $ORACLE_BASE/product/12.1.0/dbhome_1
+ENV PATH $ORACLE_HOME/bin:$PATH
 
 ADD oraInst.loc /etc/oraInst.loc
 ADD sysctl.conf /etc/sysctl.conf
@@ -17,6 +23,7 @@ RUN chmod 664 /etc/oraInst.loc && \
   chown -R oracle:oinstall /u01/app/oraInventory && \
   chmod -R 775 /u01/app/oraInventory
 
+# Copy all install files an execute the installation
 ADD db_install.rsp /tmp/db_install.rsp
 ADD install.sh /tmp/install/install.sh
 ADD linuxamd64_12102_database_1of2.zip /tmp/install/linuxamd64_12102_database_1of2.zip
@@ -28,30 +35,35 @@ RUN cd /tmp/install && \
   /tmp/install/install.sh && \
   rm -rf /tmp/install
 
-ENV ORACLE_SID ORCL
-ENV ORACLE_HOME $ORACLE_BASE/product/12.1.0/dbhome_1
-ENV PATH $ORACLE_HOME/bin:$PATH
-
+# Run the root.sh script to execute the final steps after the installation
 RUN $ORACLE_HOME/root.sh
 
+# Copy all init scripts & files and create the ORCL instance
+ADD oracle-.bashrc /home/oracle/.bashrc
+ADD initORCL.ora $ORACLE_HOME/dbs/initORCL.ora
+ADD createdb.sql $ORACLE_HOME/config/scripts/createdb.sql
+ADD create.sh /tmp/create.sh
 RUN mkdir -p $ORACLE_BASE/oradata && \
   chown -R oracle:oinstall $ORACLE_BASE/oradata && \
   chmod -R 775 $ORACLE_BASE/oradata && \
   mkdir -p $ORACLE_BASE/fast_recovery_area && \
   chown -R oracle:oinstall $ORACLE_BASE/fast_recovery_area && \
-  chmod -R 775 $ORACLE_BASE/fast_recovery_area
+  chmod -R 775 $ORACLE_BASE/fast_recovery_area && \
+  /tmp/create.sh && \
+  rm /tmp/create.sh && \
+  echo "ORCL:$ORACLE_HOME:Y" >> /etc/oratab
 
-ADD oracle-.bashrc /home/oracle/.bashrc
+VOLUME [ \
+  "$ORACLE_BASE/admin/docker/adump", \
+  "$ORACLE_BASE/diag", \
+  "$ORACLE_BASE/oradata/docker", \
+  "$ORACLE_HOME/cfgtoollogs", \
+  "$ORACLE_HOME/log", \
+  "$ORACLE_HOME/rdbms/log" \
+]
 
-ADD initORCL.ora $ORACLE_HOME/dbs/initORCL.ora
-ADD createdb.sql $ORACLE_HOME/config/scripts/createdb.sql
-ADD create.sh /tmp/create.sh
-RUN /tmp/create.sh && \
-  rm /tmp/create.sh
+EXPOSE 1521 1158
 
-EXPOSE 1521
-
-ADD startdb.sql $ORACLE_HOME/config/scripts/startdb.sql
-ADD start.sh /tmp/start.sh
-CMD /tmp/start.sh
+COPY oracle.sh /usr/local/bin/
+CMD oracle.sh
 
