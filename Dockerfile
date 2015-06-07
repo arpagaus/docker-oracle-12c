@@ -1,33 +1,32 @@
 FROM arpagaus/oraclelinux
 
-ADD linuxamd64_12102_database_1of2.zip /tmp/install/linuxamd64_12102_database_1of2.zip
-ADD linuxamd64_12102_database_2of2.zip /tmp/install/linuxamd64_12102_database_2of2.zip
 RUN yum -y install oracle-rdbms-server-12cR1-preinstall unzip sudo
-RUN cd /tmp/install && \
-  unzip linuxamd64_12102_database_1of2.zip && \
-  unzip linuxamd64_12102_database_2of2.zip && \
-  rm *.zip && \
-  echo "oracle:oracle" | chpasswd
 
 ENV ORACLE_BASE /u01/app/oracle
 
-RUN mkdir -p $ORACLE_BASE && \
+ADD oraInst.loc /etc/oraInst.loc
+ADD sysctl.conf /etc/sysctl.conf
+
+RUN chmod 664 /etc/oraInst.loc && \
+  echo "oracle soft stack 10240" >> /etc/security/limits.conf && \
+  echo "oracle:oracle" | chpasswd && \
+  mkdir -p $ORACLE_BASE && \
   chown -R oracle:oinstall $ORACLE_BASE && \
   chmod -R 775 $ORACLE_BASE && \
   mkdir -p /u01/app/oraInventory && \
   chown -R oracle:oinstall /u01/app/oraInventory && \
   chmod -R 775 /u01/app/oraInventory
-ADD oraInst.loc /etc/oraInst.loc
-RUN chmod 664 /etc/oraInst.loc
-
-ADD sysctl.conf /etc/sysctl.conf
-RUN echo "oracle soft stack 10240" >> /etc/security/limits.conf
 
 ADD db_install.rsp /tmp/db_install.rsp
 ADD install.sh /tmp/install/install.sh
-RUN sed -i -e 's/Defaults    requiretty/#Defaults    requiretty/g' /etc/sudoers && \
+ADD linuxamd64_12102_database_1of2.zip /tmp/install/linuxamd64_12102_database_1of2.zip
+ADD linuxamd64_12102_database_2of2.zip /tmp/install/linuxamd64_12102_database_2of2.zip
+RUN cd /tmp/install && \
+  unzip linuxamd64_12102_database_1of2.zip && \
+  unzip linuxamd64_12102_database_2of2.zip && \
+  sed -i -e 's/Defaults    requiretty/#Defaults    requiretty/g' /etc/sudoers && \
   /tmp/install/install.sh && \
-  rm -rf /tmp/install.sh
+  rm -rf /tmp/install
 
 ENV ORACLE_SID ORCL
 ENV ORACLE_HOME $ORACLE_BASE/product/12.1.0/dbhome_1
