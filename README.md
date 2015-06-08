@@ -1,4 +1,4 @@
-# Oracle 12c Docker Image
+# Oracle 12c Database Docker Image
 A Docker image for [Oracle Database 12c Enterprise Edition Release 12.1.0.2.0](http://www.oracle.com/technetwork/database/enterprise-edition/overview/index.html) based on an Oracle Linux 7.1 image.
 
 ## Run
