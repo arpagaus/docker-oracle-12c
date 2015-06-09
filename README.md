@@ -1,13 +1,7 @@
 # Oracle 12c Database Docker Image
 A Docker image for [Oracle Database 12c Enterprise Edition Release 12.1.0.2.0](http://www.oracle.com/technetwork/database/enterprise-edition/overview/index.html) based on an Oracle Linux 7.1 image.
 
-## Run
-Create a new container running an Oracle 12c database:
-```
-$ docker run -dP arpagaus/oracle-12c
-```
-
-## Image
+## Build Image
 Due to legal restrictions this image is not available on the Docker Hub. However, with some time and patience you may build it yourself. 
 
 ### Build
@@ -27,7 +21,20 @@ If you're still not convinced I'd recommend https://github.com/wscherphof/oracle
 
 You may refer to https://github.com/arpagaus/docker for a modified Docker v1.5.0 repository which increases /dev/shm to 2GB
 
-## Acknowledgement
+## Run
+Create a new container running an Oracle 12c database:
+```
+$ docker run -dP arpagaus/oracle-12c
+```
+
+## Inspect
+You can connect as SYSDBA with the following statement:
+```
+$ docker exec -ti evil_blackwell sudo -u oracle -i bash -c "sqlplus / AS SYSDBA"
+```
+This is particularly useful, if you don't want to expose any ports and solely rely on linking containers with each other directly. 
+
+## Acknowledgements
 This image is largely based on the work of [Wouter Scherphof](https://github.com/wscherphof)
 
 ## Known issues
